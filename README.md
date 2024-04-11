@@ -24,4 +24,9 @@ Some useful oi template cpp code.
 - RMQ
 
   - skiptable.cpp
-    - **skip table** : for immutable **RMQ**.
+    
+    **skip table** : for immutable **RMQ**.
+
+- math
+
+  - euler_prime.cpp
