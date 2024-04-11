@@ -1,6 +1,7 @@
 # oi-template-cpp
 
-## introduction
+
+## Introduction
 
 Some useful oi template cpp code.
 
@@ -14,3 +15,8 @@ Some useful oi template cpp code.
 - tree_cut
 
   - TreeCut: wrap for tree cut implementation.
+
+- String
+
+  - rolling_hash.cpp
+    - **StrHasher** : wrap for rolling hash.
