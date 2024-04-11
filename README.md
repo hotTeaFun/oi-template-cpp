@@ -20,3 +20,8 @@ Some useful oi template cpp code.
 
   - rolling_hash.cpp
     - **StrHasher** : wrap for rolling hash.
+
+- RMQ
+
+  - skiptable.cpp
+    - **skip table** : for immutable **RMQ**.
