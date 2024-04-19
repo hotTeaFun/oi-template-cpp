@@ -35,7 +35,7 @@ Some useful oi template cpp code.
 
 
 - DSU
-  - DSU
+  - **DSU**
 
 - Fenwick Tree
   - **Fenwick**
@@ -53,3 +53,4 @@ Some useful oi template cpp code.
 - math
 
   - euler_prime.cpp
+  - poly.cpp
