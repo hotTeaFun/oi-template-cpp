@@ -1,66 +1,152 @@
 #include <bits/stdc++.h>
-constexpr int N = 1e4 + 10;
+using i64 = long long;
+std::set<std::pair<int, int>> E;
+struct SCC {
+  int n;
+  std::vector<std::vector<int>> adj;
+  std::vector<int> stk;
+  std::vector<int> dfn, low, bel;
+  int cur, cnt;
 
-int dfn[N];  // dfn记录访问时间戳
-int low[N];  // low记录从每个节点能到达节点中的最小时间戳
+  SCC() {}
+  SCC(int n) { init(n); }
 
-int tot;              // tot维护当前时间
-std::stack<int> stk;  // 访问栈
-bool instk[N];        // 记录节点是否在栈上
-int nscc;             // 记录总共有多少个scc
-int scc[N];           // 记录每个节点属于哪个scc
-int sscc[N];          // 记录每个scc的大小
-int n, m;
-std::vector<int> G[N];
-void tarjan(int id) {
-  dfn[id] = low[id] = ++tot;
-  stk.push(id);
-  instk[id] = true;
-  for (int j : G[id]) {
-    if (!dfn[j]) {
-      tarjan(j);
-      low[id] = std::min(low[id], low[j]);
-    } else if (instk[j]) {
-      low[id] = std::min(low[id], dfn[j]);
+  void init(int n) {
+    this->n = n;
+    adj.assign(n, {});
+    dfn.assign(n, -1);
+    low.resize(n);
+    bel.assign(n, -1);
+    stk.clear();
+    cur = cnt = 0;
+  }
+
+  void addEdge(int u, int v) { adj[u].push_back(v); }
+
+  void dfs(int x) {
+    dfn[x] = low[x] = cur++;
+    stk.push_back(x);
+
+    for (auto y : adj[x]) {
+      if (dfn[y] == -1) {
+        dfs(y);
+        low[x] = std::min(low[x], low[y]);
+      } else if (bel[y] == -1) {
+        low[x] = std::min(low[x], dfn[y]);
+      }
     }
-  }
-  if (dfn[id] == low[id]) {
-    int j;
-    ++nscc;
-    do {
-      j = stk.top();
-      stk.pop();
-      instk[j] = false;
-      scc[j] = nscc;
-      sscc[nscc]++;
-    } while (j != id);
-  }
-}
-void solve() {
-  std::cin >> n >> m;
-  int u, v;
-  for (int i = 0; i < m; i++) {
-    std::cin >> u >> v;
-    G[u].push_back(v);
-  }
-  for (int i = 1; i <= n; i++) {
-    if (!dfn[i]) {
-      tarjan(i);
-    }
-  }
-  int cnt = 0;
-  for (int i = 1; i <= nscc; i++) {
-    if (sscc[i] > 1) {
+
+    if (dfn[x] == low[x]) {
+      int y;
+      do {
+        y = stk.back();
+        bel[y] = cnt;
+        stk.pop_back();
+      } while (y != x);
       cnt++;
     }
   }
-  std::cout << cnt << "\n";
-}
+
+  std::vector<int> work() {
+    for (int i = 0; i < n; i++) {
+      if (dfn[i] == -1) {
+        dfs(i);
+      }
+    }
+    return bel;
+  }
+};
+
+struct EBCC {
+  int n;
+  std::vector<std::vector<int>> adj;
+  std::vector<int> stk;
+  std::vector<int> dfn, low, bel;
+  int cur, cnt;
+
+  EBCC() {}
+  EBCC(int n) { init(n); }
+
+  void init(int n) {
+    this->n = n;
+    adj.assign(n, {});
+    dfn.assign(n, -1);
+    low.resize(n);
+    bel.assign(n, -1);
+    stk.clear();
+    cur = cnt = 0;
+  }
+
+  void addEdge(int u, int v) {
+    adj[u].push_back(v);
+    adj[v].push_back(u);
+  }
+
+  void dfs(int x, int p) {
+    dfn[x] = low[x] = cur++;
+    stk.push_back(x);
+
+    for (auto y : adj[x]) {
+      if (y == p) {
+        continue;
+      }
+      if (dfn[y] == -1) {
+        E.emplace(x, y);
+        dfs(y, x);
+        low[x] = std::min(low[x], low[y]);
+      } else if (bel[y] == -1 && dfn[y] < dfn[x]) {
+        E.emplace(x, y);
+        low[x] = std::min(low[x], dfn[y]);
+      }
+    }
+
+    if (dfn[x] == low[x]) {
+      int y;
+      do {
+        y = stk.back();
+        bel[y] = cnt;
+        stk.pop_back();
+      } while (y != x);
+      cnt++;
+    }
+  }
+
+  std::vector<int> work() {
+    dfs(0, -1);
+    return bel;
+  }
+
+  struct Graph {
+    int n;
+    std::vector<std::pair<int, int>> edges;
+    std::vector<int> siz;
+    std::vector<int> cnte;
+  };
+  Graph compress() {
+    Graph g;
+    g.n = cnt;
+    g.siz.resize(cnt);
+    g.cnte.resize(cnt);
+    for (int i = 0; i < n; i++) {
+      g.siz[bel[i]]++;
+      for (auto j : adj[i]) {
+        if (bel[i] < bel[j]) {
+          g.edges.emplace_back(bel[i], bel[j]);
+        } else if (i < j) {
+          g.cnte[bel[i]]++;
+        }
+      }
+    }
+    return g;
+  }
+};
+
+void solve() {}
 int main() {
   std::cin.sync_with_stdio(false);
   std::cin.tie(nullptr);
   int t = 1;
-  // std::cin >> t;
+  std::cin >> t;
   while (t--) {
     solve();
   }
